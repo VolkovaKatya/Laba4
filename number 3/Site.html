@@ -1,0 +1,77 @@
+
+<?php
+
+require_once "vendor/autoload.php";
+error_reporting(E_ERROR | E_PARSE);
+
+if (!isset($_POST['adCategory'], $_POST['adTitle'], $_POST['adEmail'], $_POST['adText'])) {
+    return;
+}
+
+$googleClient = new Google_Client();
+$googleClient->setApplicationName('Google Sheets API Implementation');
+$googleClient->setScopes(Google_Service_Sheets::SPREADSHEETS);
+$googleClient->setAuthConfig('credentials.json');
+$googleClient->setAccessType('offline');
+$googleClient->setPrompt('select_account consent');
+
+$sheetsService = new Google_Service_Sheets($googleClient);
+$spreadsheetId = "15gjiH1i8wByDsj6qMKL8JXwdOfWCOmdGneH6G8TJppA";
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Title</title>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+<form name="userAd" action="storage.php" method="post">
+    <label>Add ad:</label><br><br>
+    <label>Ad category:</label><br>
+    <select name="adCategory">
+
+        <?php
+            include "ad_Class.php";
+            foreach (crt::$allcategories as $categoryName) {
+                echo "<option>" . $categoryName . "</option>";
+             }
+        ?>
+
+    </select><br><br>
+    <label>Ad name:</label>
+    <input name="adTitle"><br><br>
+    <label>Your email:</label>
+    <input name="adEmail"><br><br>
+    <label>Ad text:</label><br>
+    <textarea name="adText" rows="10" cols="150"></textarea><br><br>
+    <button type="submit">Send Ad</button>
+</form>
+
+<p>Ad list:</p>
+<table border="1">
+    <tr>
+        <th>Category</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Text</th>
+    </tr>
+
+    <?php
+        include "create.php";
+        foreach (crt::$adsDict as $categoryName => $categoryData) {
+            foreach ($categoryData as $titleEmailText) {
+                echo "<tr>";
+                echo "<td>" . $categoryName . "</td>";
+                echo "<td>" . $titleEmailText['title'] . "</td>";
+                echo "<td>" . $titleEmailText['email'] . "</td>";
+                echo "<td>" . $titleEmailText['text'] . "</td>";
+                echo "</tr>";
+            }
+        }
+    ?>
+
+</table>
+</body>
+</html>
